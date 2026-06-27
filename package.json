@@ -1,0 +1,31 @@
+{
+  "name": "agora-bot",
+  "version": "1.0.0",
+  "description": "Agora Nostr Announcement Bot — monitors Agora campaigns and donations, posts announcements to Nostr",
+  "type": "module",
+  "main": "dist/index.js",
+  "scripts": {
+    "dev": "tsx src/index.ts",
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "test:subscribe": "tsx scripts/test-subscribe.ts",
+    "test:publish": "tsx scripts/test-publish.ts"
+  },
+  "dependencies": {
+    "@nostrify/nostrify": "^0.52.2",
+    "@noble/curves": "^2.2.0",
+    "@noble/hashes": "^1.8.0",
+    "@scure/base": "^1.1.1",
+    "better-sqlite3": "^11.0.0",
+    "nostr-tools": "^2.13.0"
+  },
+  "devDependencies": {
+    "@types/better-sqlite3": "^7.6.12",
+    "@types/node": "^22.0.0",
+    "tsx": "^4.19.0",
+    "typescript": "^5.6.0"
+  },
+  "engines": {
+    "node": ">=22.0.0"
+  }
+}
