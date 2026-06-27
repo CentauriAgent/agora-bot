@@ -1,4 +1,4 @@
-import { hexToBytes } from '@noble/hashes/utils';
+import { hexToBytes, bytesToHex } from '@noble/hashes/utils';
 import { nip19 } from 'nostr-tools';
 import { secp256k1 } from '@noble/curves/secp256k1.js';
 
@@ -32,10 +32,9 @@ const DATA_DIR = optional('DATA_DIR', './data');
 const POST_INTERVAL_MS = parseInt(optional('POST_INTERVAL_MS', '300000'), 10);
 const LOG_LEVEL = optional('LOG_LEVEL', 'info');
 
-// Derive pubkey from secret key
+// Derive pubkey from secret key (compressed: 0x02/0x03 || x — drop prefix byte)
 const secretKeyBytes = hexToBytes(SECRET_KEY_HEX);
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const PUBKEY_HEX = (secp256k1 as any).getPublicKey(secretKeyBytes, false).slice(2) as string;
+const PUBKEY_HEX = bytesToHex(secp256k1.getPublicKey(secretKeyBytes, true).slice(1));
 const BOT_NPUB = nip19.npubEncode(PUBKEY_HEX);
 const BOT_NSEC = nip19.nsecEncode(secretKeyBytes);
 
