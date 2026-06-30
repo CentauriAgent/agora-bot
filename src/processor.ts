@@ -34,18 +34,25 @@ export async function handleEvent(event: NostrEvent): Promise<void> {
 
 /** Process a kind 33863 campaign event. */
 async function handleCampaignEvent(event: NostrEvent): Promise<void> {
+  // Check if we've already announced this campaign coordinate BEFORE parsing/caching.
+  // parseCampaign() calls cacheCampaign() which writes to DB — if we check after,
+  // we'll always find the campaign we just cached and skip everything as an "update".
+  const identifier = event.tags.find((t) => t[0] === 'd')?.[1] ?? '';
+  const coord = `33863:${event.pubkey}:${identifier}`;
+  const existing = getCampaignByCoord(coord);
+
   const campaign = parseCampaign(event);
 
-  // Check if we've already announced this campaign coordinate
-  const existing = getCampaignByCoord(campaign.coord);
   if (existing && existing.title === campaign.title) {
-    // This is likely an update, not a new campaign
-    log('debug', `Campaign ${campaign.coord} already cached, likely an update`);
+    // Same coord + same title = republished event, not new. Skip.
+    log('debug', `Campaign ${campaign.coord} already seen, skipping republish`);
     recordAnnouncement(event.id, 33863, null, { reason: 'campaign_update', coord: campaign.coord });
     return;
   }
 
   const content = formatCampaignPost(campaign);
+
+  log('info', `New campaign: ${campaign.title} — queueing announcement`);
 
   enqueue({
     content,
